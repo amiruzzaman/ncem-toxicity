@@ -1,0 +1,44 @@
+Tox21 data summary:
+Input SHA-256: 7d7e7facd853a63e79ddce4e9c3fcb7a0d83a1c300b603031c0f2c64fbe77761
+Rows: 7,831
+Columns: 14
+Endpoints: 12
+
+Labels 1 = active; 0 = inactive in the specified assay.
+These labels do not establish overall human toxicity or safety
+Missing: blank, NA, N/A, NaN, null, none (case-insensitive).
+Invalid: any other label. Numeric forms such as 0.0 or 1.0 are accepted.
+
+Endpoint           Active  Inactive  Missing  Invalid  Missing %
+NR-AR                 309     6,956       566        0      7.23%
+NR-AR-LBD             237     6,521     1,073        0     13.70%
+NR-AhR                768     5,781     1,282        0     16.37%
+NR-Aromatase          300     5,521     2,010        0     25.67%
+NR-ER                 793     5,400     1,638        0     20.92%
+NR-ER-LBD             350     6,605       876        0     11.19%
+NR-PPAR-gamma         186     6,264     1,381        0     17.64%
+SR-ARE                942     4,890     1,999        0     25.53%
+SR-ATAD5              264     6,808       759        0      9.69%
+SR-HSE                372     6,095     1,364        0     17.42%
+SR-MMP                918     4,892     2,021        0     25.81%
+SR-p53                423     6,351     1,057        0     13.50%
+
+Total endpoint cells: 93,972
+Endpoint totals: active=5,862; inactive=72,084; missing=16,026; invalid=0
+Check: each endpoint's four counts sum to the row count: PASS
+
+Missing values by column (including identifiers):
+NR-AR: 566
+NR-AR-LBD: 1,073
+NR-AhR: 1,282
+NR-Aromatase: 2,010
+NR-ER: 1,638
+NR-ER-LBD: 876
+NR-PPAR-gamma: 1,381
+SR-ARE: 1,999
+SR-ATAD5: 759
+SR-HSE: 1,364
+SR-MMP: 2,021
+SR-p53: 1,057
+mol_id: 0
+smiles: 0
