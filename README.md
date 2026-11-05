@@ -6,15 +6,45 @@ The current pilot combines Tox21 assay results with EPA DSSTox chemical records 
 
 The current master is `tox21_dsstox_complete/master_chemicals.csv`. Each row represents a chemical identity or a provisional entry awaiting structure review. An assay is a lab test that measures a particular response.
 
-| Columns | What they tell you |
-| --- | --- |
-| `chemical_id`, `standard_inchikey`, `representative_smiles`, `identity_status` | The project's internal ID, the standard structure identifier when available, a text representation of the structure, and how the identity was recorded. |
-| `dsstox_*` | DSSTox identifiers, preferred name, CAS number, molecular formula, and mass fields where available. A nonstandard DSSTox InChIKey stays in `dsstox_inchikey`. |
-| Twelve Tox21 assay columns, such as `NR-ER` | The result for that chemical in each assay. |
+The master has **24 columns**, listed below in CSV order.
+
+| Group | Count | Column names |
+| --- | ---: | --- |
+| Internal identity and structure | 4 | `chemical_id`, `standard_inchikey`, `representative_smiles`, `identity_status` |
+| Nuclear receptor assays | 7 | `NR-AR`, `NR-AR-LBD`, `NR-AhR`, `NR-Aromatase`, `NR-ER`, `NR-ER-LBD`, `NR-PPAR-gamma` |
+| Stress response assays | 5 | `SR-ARE`, `SR-ATAD5`, `SR-HSE`, `SR-MMP`, `SR-p53` |
+| DSSTox names and identifiers | 5 | `dsstox_inchikey`, `dsstox_preferred_name`, `dsstox_casrn`, `dsstox_dtxsid`, `dsstox_dtxcid` |
+| DSSTox formula and masses | 3 | `dsstox_molecular_formula`, `dsstox_average_mass`, `dsstox_monoisotopic_mass` |
+
+A nonstandard DSSTox InChIKey stays in `dsstox_inchikey`.
 
 A value of `1` means active in the specified assay. A value of `0` means inactive in that assay. A blank means no result is available. A value of `conflict` means the source observations disagree. Activity is specific to the assay and its conditions.
 
 For example, chemical ID `94c966d3-e7b1-56b4-9e8c-757804e199c7` has `conflict` in `NR-ER`. Filter `tox21_observations.csv` by that `chemical_id` and endpoint `NR-ER`. Source record `TOX4994` reports `1`, and `TOX6178` reports `0`. The two records support reporting a disagreement for that assay.
+
+## How the CSV files connect
+
+```mermaid
+flowchart TD
+    M["master_chemicals.csv<br/>1,248,222 chemical entries<br/>IDs, structure, and identity status<br/>DSSTox properties and 12 assay results"]
+    O["tox21_observations.csv<br/>77,946 assay observations<br/>endpoint, result, source record ID<br/>Original SMILES and source fingerprint"]
+    D["dsstox_records.csv<br/>1,246,399 source records<br/>All 13 original DSSTox fields<br/>Source row number and fingerprint"]
+    R["dsstox_review.csv<br/>93,332 records for review<br/>Linked DSSTox fields<br/>review_reason"]
+
+    M -->|chemical_id| O
+    M -->|chemical_id| D
+    D -.->|Subset needing key review| R
+```
+
+Use `chemical_id` to look up a chemical's observations and source records. Review rows are already included in `dsstox_records.csv`. The separate `dsstox_import.json` records the build's input fingerprint, policy version, and counts.
+
+### Companion CSV columns
+
+| File | Count | Column names |
+| --- | ---: | --- |
+| `tox21_observations.csv` | 7 | `chemical_id`, `source_dataset`, `source_record_id`, `source_smiles`, `source_sha256`, `endpoint`, `result` |
+| `dsstox_records.csv` | 16 | `chemical_id`, `source_row_number`, `source_sha256`, `DTXSID`, `PREFERRED_NAME`, `CASRN`, `DTXCID`, `INCHIKEY`, `IUPAC_NAME`, `SMILES`, `MOLECULAR_FORMULA`, `AVERAGE_MASS`, `MONOISOTOPIC_MASS`, `QSAR_READY_SMILES`, `MS_READY_SMILES`, `IDENTIFIER` |
+| `dsstox_review.csv` | 17 | `review_reason`, followed by all 16 columns from `dsstox_records.csv` in the same order. |
 
 ## Data sources and matching keys
 
