@@ -4,3 +4,6 @@
 /MasterChemical.csv
 /tox21_dsstox_complete/
 .DS_Store
+/tox21_key_review/
+/tox21_key_review_*/
+__pycache__/

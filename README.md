@@ -4,7 +4,7 @@ The current pilot combines Tox21 assay results with EPA DSSTox chemical records 
 
 ## What is in MasterChemCSV?
 
-The current master is `tox21_dsstox_complete/master_chemicals.csv`. Each row represents a chemical identity or a provisional entry awaiting structure review. An assay is a lab test that measures a particular response.
+The current master is `tox21_key_review/master_chemicals_reviewed.csv`. The original import remains in `tox21_dsstox_complete/`. Each row represents a chemical identity or a provisional entry awaiting structure review. An assay is a lab test that measures a particular response.
 
 The master has **24 columns**, listed below in CSV order.
 
@@ -26,14 +26,16 @@ For example, chemical ID `94c966d3-e7b1-56b4-9e8c-757804e199c7` has `conflict` i
 
 ```mermaid
 flowchart TD
-    M["master_chemicals.csv<br/>1,248,222 chemical entries<br/>IDs, structure, and identity status<br/>DSSTox properties and 12 assay results"]
-    O["tox21_observations.csv<br/>77,946 assay observations<br/>endpoint, result, source record ID<br/>Original SMILES and source fingerprint"]
-    D["dsstox_records.csv<br/>1,246,399 source records<br/>All 13 original DSSTox fields<br/>Source row number and fingerprint"]
-    R["dsstox_review.csv<br/>93,332 records for review<br/>Linked DSSTox fields<br/>review_reason"]
+    M["Current master_chemicals_reviewed.csv<br/>1,248,222 chemical entries<br/>5 derived keys applied<br/>IDs, properties and 12 assay results"]
+    O["tox21_observations.csv<br/>77,946 assay observations<br/>Results and source evidence"]
+    D["dsstox_records.csv<br/>1,246,399 source records<br/>Original DSSTox fields and provenance"]
+    R["dsstox_review.csv<br/>93,332 original review records<br/>93,327 still unresolved after review"]
+    P["priority_review.csv<br/>353 follow-up records"]
 
     M -->|chemical_id| O
     M -->|chemical_id| D
-    D -.->|Subset needing key review| R
+    D -.->|Original missing-key subset| R
+    R -.->|Priority after review| P
 ```
 
 Use `chemical_id` to look up a chemical's observations and source records. Review rows are already included in `dsstox_records.csv`. The separate `dsstox_import.json` records the build's input fingerprint, policy version, and counts.
@@ -64,7 +66,7 @@ Use the full `DSSToxCCDdump.csv` inside `DSSTox_CCD_dump_12092025_CSVs.zip`. The
 
 ## Set up and build
 
-Use **Python 3.11 or later**. The Tox21 builder needs RDKit in the Python environment used to run it. The verified build used **RDKit 2026.09.1**. Check which version your interpreter loads with the command below. If the import fails, install RDKit in that environment. [RDKit installation guide](https://www.rdkit.org/docs/Install.html)
+Use **Python 3.11 or later**. The Tox21 builder and key-review script need RDKit in the Python environment used to run them. The verified build used **RDKit 2026.09.1**. Check which version your interpreter loads with the command below. If the import fails, install RDKit in that environment. [RDKit installation guide](https://www.rdkit.org/docs/Install.html)
 
 ```bash
 python3 -c "from rdkit import rdBase; print(rdBase.rdkitVersion)"
@@ -90,6 +92,16 @@ The first build creates the Tox21-only master and observation CSVs. The DSSTox i
 | `dsstox_review.csv` | DSSTox records with missing or malformed keys, with a review reason and a link to the master. |
 | `dsstox_import.json` | The DSSTox input fingerprint, import policy version, and counts for checking the build. |
 
+## Review missing DSSTox keys
+
+Run the optional review into a new output directory:
+
+```bash
+python3 review_dsstox_keys.py tox21_dsstox_complete tox21_key_review
+```
+
+The current master includes **5 locally derived keys**, marked `key_derived_from_source_smiles`, with all chemical IDs preserved. **93,327 DSSTox entries remain unresolved**. `key_updates.csv` records the changes, `key_review.csv` contains the full audit, and `priority_review.csv` holds **353 optional follow-up records**. Counts, file hashes, and software versions are recorded in `key_review_manifest.json`. Keys are derived only from original explicit SMILES after formula and structure round-trip checks; ambiguous structures and conversion warnings remain unresolved.
+
 ## Expected counts and future imports
 
 These counts apply to the inputs above and DSSTox import policy version **2**.
@@ -102,7 +114,7 @@ These counts apply to the inputs above and DSSTox import policy version **2**.
 | Linked DSSTox input records | 1,246,399 |
 | Existing Tox21 identities matched by exact InChIKey | 6,006 |
 | Combined master rows | **1,248,222** |
-| Provisional DSSTox entries included in the combined master | 93,332 |
+| Provisional DSSTox entries before key review | 93,332 |
 
 DSSTox expands the chemical catalog. Tox21 supplies all current assay results, and only 7,829 master rows have any Tox21 result. The Tox21 input summary breaks down active, inactive, and missing values by endpoint. [Tox21 summary](tox21_summary.txt)
 
