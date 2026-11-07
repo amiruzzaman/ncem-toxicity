@@ -17,7 +17,6 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from uuid import NAMESPACE_URL, uuid5
 
-from openpyxl import load_workbook
 from download_toxcast import DEFAULT_LOCK, RELEASE, fingerprint, load_lock, verify
 
 POLICY_VERSION = 1
@@ -316,6 +315,8 @@ class Importer:
 
 
 def workbook_tables(stream):
+    from openpyxl import load_workbook
+
     book = load_workbook(stream, read_only=True, data_only=True)
     try:
         for sheet in book:

@@ -1,13 +1,17 @@
 # Dev notes
-# From the repository root, use Python 3.11+ with requirements/toxcast.txt installed.
+# From the repository root, copy the command after the #.
 # python3 -m unittest -v tests.test_build_sorted_masterchem
 
 import csv
 import json
+import sys
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
+
+if not __package__:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import build_sorted_masterchem as builder
 from download_toxcast import fingerprint

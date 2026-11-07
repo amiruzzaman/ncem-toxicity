@@ -1,9 +1,13 @@
 """Scientific identity and provenance checks for the key-review workflow."""
 import csv
 import json
+import sys
 import tempfile
 import unittest
 from pathlib import Path
+
+if not __package__:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from review_dsstox_keys import (
     INPUTS, RECORD_FIELDS, REVIEW_FIELDS, classify_structure, fingerprint, run, write_csv,
