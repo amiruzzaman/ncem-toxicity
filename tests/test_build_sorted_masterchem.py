@@ -1,3 +1,7 @@
+# Dev notes
+# From the repository root, use Python 3.11+ with requirements/toxcast.txt installed.
+# python3 -m unittest -v tests.test_build_sorted_masterchem
+
 import csv
 import json
 import unittest

@@ -1,5 +1,12 @@
 """Export a sorted, assay-filtered CSV from a published three-source snapshot."""
 
+# Dev notes
+# From the repository root, use Python 3.11+ with requirements/toxcast.txt installed.
+# python3 build_sorted_masterchem.py \
+#     --snapshot tox21_dsstox_toxcast_v4_3 \
+#     --output "$HOME/Documents/ChatGPT/ResearchChem/SortedMasterChem-rerun.csv"
+# Choose an unused output path for each run.
+
 import argparse
 import csv
 import json
