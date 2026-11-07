@@ -1,10 +1,10 @@
 # ncem-toxicity
 
-The current pilot combines Tox21 assay results with EPA DSSTox chemical records in CSV files. Future work will bring in ChEMBL and TOXRIC and build an AI retrieval tool that follows directed acyclic graph (DAG) links between compounds, assays, targets, and toxicity endpoints.
+The pilot combines Tox21 assay results with EPA DSSTox chemical records in CSV files. Planned work adds ChEMBL, TOXRIC, and an AI retrieval tool using directed acyclic graph (DAG) links between compounds, assays, targets, and toxicity endpoints.
 
 ## What is in MasterChemCSV?
 
-The current master is `tox21_key_review/master_chemicals_reviewed.csv`. The original import remains in `tox21_dsstox_complete/`. Each row represents a chemical identity or a provisional entry awaiting structure review. An assay is a lab test that measures a particular response.
+The current master is `tox21_key_review/master_chemicals_reviewed.csv`. The original import remains in `tox21_dsstox_complete/`. Each row represents a chemical identity or a provisional entry awaiting structure review.
 
 The master has **24 columns**, listed below in CSV order.
 
@@ -18,27 +18,29 @@ The master has **24 columns**, listed below in CSV order.
 
 A nonstandard DSSTox InChIKey stays in `dsstox_inchikey`.
 
-A value of `1` means active in the specified assay. A value of `0` means inactive in that assay. A blank means no result is available. A value of `conflict` means the source observations disagree. Activity is specific to the assay and its conditions.
+An assay is a lab test of a particular response. `1` means active, `0` means inactive, a blank means no result, and `conflict` means the source observations disagree. Activity is specific to the assay and its conditions.
 
-For example, chemical ID `94c966d3-e7b1-56b4-9e8c-757804e199c7` has `conflict` in `NR-ER`. Filter `tox21_observations.csv` by that `chemical_id` and endpoint `NR-ER`. Source record `TOX4994` reports `1`, and `TOX6178` reports `0`. The two records support reporting a disagreement for that assay.
+For example, chemical ID `94c966d3-e7b1-56b4-9e8c-757804e199c7` has `conflict` in `NR-ER`: source record `TOX4994` reports `1`, while `TOX6178` reports `0`. Both remain in `tox21_observations.csv`.
 
 ## How the CSV files connect
 
 ```mermaid
 flowchart TD
-    M["Current master_chemicals_reviewed.csv<br/>1,248,222 chemical entries<br/>5 derived keys applied<br/>IDs, properties and 12 assay results"]
-    O["tox21_observations.csv<br/>77,946 assay observations<br/>Results and source evidence"]
-    D["dsstox_records.csv<br/>1,246,399 source records<br/>Original DSSTox fields and provenance"]
-    R["dsstox_review.csv<br/>93,332 original review records<br/>93,327 still unresolved after review"]
+    M["master_chemicals_reviewed.csv<br/>1,248,222 chemical entries<br/>5 locally derived keys applied"]
+    O["tox21_observations.csv<br/>77,946 assay observations"]
+    D["dsstox_records.csv<br/>1,246,399 source records"]
+    R["dsstox_review.csv<br/>93,332 original review records"]
+    K["key_review.csv<br/>5 keys derived<br/>93,327 DSSTox entries unresolved"]
     P["priority_review.csv<br/>353 follow-up records"]
 
     M -->|chemical_id| O
     M -->|chemical_id| D
-    D -.->|Original missing-key subset| R
-    R -.->|Priority after review| P
+    D -.->|Missing or malformed keys| R
+    R -->|Key audit| K
+    K -.->|Priority subset| P
 ```
 
-Use `chemical_id` to look up a chemical's observations and source records. Review rows are already included in `dsstox_records.csv`. The separate `dsstox_import.json` records the build's input fingerprint, policy version, and counts.
+Use `chemical_id` to look up observations and source records. The companion CSVs remain in `tox21_dsstox_complete/`; review outputs are in `tox21_key_review/`. Review rows are already included in `dsstox_records.csv`. The import and review manifests record fingerprints, policy versions, and counts.
 
 ### Companion CSV columns
 
@@ -52,12 +54,12 @@ Use `chemical_id` to look up a chemical's observations and source records. Revie
 
 | Input | What it contributes | How records are matched |
 | --- | --- | --- |
-| `tox21.csv`, included in this repository | Chemical structures and results for 12 assays | RDKit generates a full Standard InChIKey from each SMILES string. Rows with the same full key share a `chemical_id`. The original `mol_id` stays in the observations as the source record ID. |
+| `tox21.csv` | Chemical structures and results for 12 assays | RDKit generates a full Standard InChIKey from each SMILES string. Rows with the same full key share a `chemical_id`. The original `mol_id` stays in the observations as the source record ID. |
 | EPA `DSSToxCCDdump.csv` | Chemical identifiers, names, structures, and properties | An exact match on the full supplied InChIKey reuses the Tox21 `chemical_id`. Records with new keys add master rows. |
 
-An InChIKey is a short identifier derived from a chemical structure. Names and CAS numbers are kept as metadata. For a DSSTox record with a missing or unusable key, the importer checks whether its DSSTox substance ID (`DTXSID`) points to exactly one usable key in the same export. All records with missing or malformed keys go into the review queue. An unresolved record receives a provisional ID. Use `chemical_id` to look up source records and observations from the master.
+An InChIKey is an identifier derived from a chemical structure. Names and CAS numbers remain metadata. For a missing or unusable DSSTox key, the importer checks whether the substance ID (`DTXSID`) points to exactly one usable key in the same export. All records with missing or malformed keys enter the review queue; unresolved records receive provisional IDs.
 
-Use the full `DSSToxCCDdump.csv` inside `DSSTox_CCD_dump_12092025_CSVs.zip`. The numbered CSVs are partitions of that same file. If the historical archive is unavailable through EPA, ask the lab for its archived copy. [Tox21 Data Challenge](https://tripod.nih.gov/tox21/challenge/data.jsp) · [EPA computational toxicology downloads](https://www.epa.gov/comptox-tools/downloadable-computational-toxicology-data)
+Use the full `DSSToxCCDdump.csv` inside `DSSTox_CCD_dump_12092025_CSVs.zip`. The numbered CSVs are partitions of that file. If the historical archive is unavailable through EPA, ask the lab for its archived copy. [Tox21 Data Challenge](https://tripod.nih.gov/tox21/challenge/data.jsp) · [EPA computational toxicology downloads](https://www.epa.gov/comptox-tools/downloadable-computational-toxicology-data)
 
 | Input | SHA-256 fingerprint |
 | --- | --- |
@@ -66,31 +68,32 @@ Use the full `DSSToxCCDdump.csv` inside `DSSTox_CCD_dump_12092025_CSVs.zip`. The
 
 ## Set up and build
 
-Use **Python 3.11 or later**. The Tox21 builder and key-review script need RDKit in the Python environment used to run them. The verified build used **RDKit 2026.09.1**. Check which version your interpreter loads with the command below. If the import fails, install RDKit in that environment. [RDKit installation guide](https://www.rdkit.org/docs/Install.html)
+Use **Python 3.11 or later**. The Tox21 builder and key-review script require RDKit; the recorded review used **RDKit 2026.09.1**. Check the version loaded by your interpreter:
 
 ```bash
 python3 -c "from rdkit import rdBase; print(rdBase.rdkitVersion)"
 ```
 
-Place the extracted `DSSToxCCDdump.csv` alongside the scripts. Allow several GB of free space for the input, generated files, and temporary staging. Run these commands from the repository root. The summary command is optional. Both builders require fresh output directory names, so use unused names if you already have a snapshot.
+If the import fails, install RDKit in that environment. [RDKit installation guide](https://www.rdkit.org/docs/Install.html)
+
+Place `tox21.csv` and the extracted `DSSToxCCDdump.csv` alongside the scripts. Allow several GB of free space for inputs, outputs, and temporary staging. Run from the repository root, using fresh output directory names:
 
 ```bash
-python3 summary_tox21.py tox21.csv
-python3 BuiltMasterTox21.py tox21.csv tox21_initial
+python3 build_tox21.py tox21.csv tox21_initial
 python3 import_dsstox.py tox21_initial DSSToxCCDdump.csv tox21_dsstox_complete
 ```
 
-The first build creates the Tox21-only master and observation CSVs. The DSSTox import uses those files to create the combined snapshot. SQLite serves as temporary staging during the import. The published data files are CSVs, with a JSON manifest recording the import.
+The first command creates the Tox21-only snapshot. The second adds DSSTox, using temporary SQLite staging, and writes the combined CSVs and import manifest.
 
 ## Combined output files
 
 | File in `tox21_dsstox_complete/` | What it contains |
 | --- | --- |
-| `master_chemicals.csv` | The main chemical catalog with selected DSSTox properties and Tox21 assay columns. |
-| `tox21_observations.csv` | Individual Tox21 results with the source record ID, original SMILES, and source fingerprint. |
+| `master_chemicals.csv` | Chemical catalog with selected DSSTox properties and Tox21 assay columns. |
+| `tox21_observations.csv` | Individual Tox21 results with source record IDs, original SMILES, and the source fingerprint. |
 | `dsstox_records.csv` | All linked DSSTox records, including all 13 original fields, source row numbers, and the source fingerprint. |
-| `dsstox_review.csv` | DSSTox records with missing or malformed keys, with a review reason and a link to the master. |
-| `dsstox_import.json` | The DSSTox input fingerprint, import policy version, and counts for checking the build. |
+| `dsstox_review.csv` | Records with missing or malformed keys, with a review reason and a link to the master. |
+| `dsstox_import.json` | DSSTox input fingerprint, import policy version, and counts. |
 
 ## Review missing DSSTox keys
 
@@ -100,7 +103,9 @@ Run the optional review into a new output directory:
 python3 review_dsstox_keys.py tox21_dsstox_complete tox21_key_review
 ```
 
-The current master includes **5 locally derived keys**, marked `key_derived_from_source_smiles`, with all chemical IDs preserved. **93,327 DSSTox entries remain unresolved**. `key_updates.csv` records the changes, `key_review.csv` contains the full audit, and `priority_review.csv` holds **353 optional follow-up records**. Counts, file hashes, and software versions are recorded in `key_review_manifest.json`. Keys are derived only from original explicit SMILES after formula and structure round-trip checks; ambiguous structures and conversion warnings remain unresolved.
+The reviewed master includes **5 locally derived keys**, marked `key_derived_from_source_smiles`, with all chemical IDs preserved. **93,327 DSSTox entries remain unresolved**. `key_updates.csv` records the changes, `key_review.csv` contains the full audit, and `priority_review.csv` holds **353 follow-up records**. Counts, hashes, and software versions are in `key_review_manifest.json`.
+
+Keys are derived only from original explicit SMILES after formula and structure round-trip checks. Ambiguous structures and conversion warnings remain unresolved. Original DSSTox keys remain unchanged. [Review details](tox21_key_review/KEY_REVIEW.md)
 
 ## Expected counts and future imports
 
@@ -113,9 +118,12 @@ These counts apply to the inputs above and DSSTox import policy version **2**.
 | Tox21 observations | 77,946 |
 | Linked DSSTox input records | 1,246,399 |
 | Existing Tox21 identities matched by exact InChIKey | 6,006 |
-| Combined master rows | **1,248,222** |
+| Combined and reviewed master rows | **1,248,222** |
 | Provisional DSSTox entries before key review | 93,332 |
+| Locally derived keys applied | 5 |
+| Unresolved DSSTox entries after key review | 93,327 |
+| Priority review records | 353 |
 
-DSSTox expands the chemical catalog. Tox21 supplies all current assay results, and only 7,829 master rows have any Tox21 result. The Tox21 input summary breaks down active, inactive, and missing values by endpoint. [Tox21 summary](tox21_summary.txt)
+DSSTox expands the catalog. Tox21 supplies all current assay results: **7,829 of 1,248,222 rows (0.627%)** have at least one result. [Assay coverage graph](chemical-master-explorer.html) · [Chemical row graph](master-csv-points.html). Open the row graph and select `tox21_key_review/master_chemicals_reviewed.csv`.
 
-For a new DSSTox release, start from the Tox21-only snapshot, build into a fresh directory, and check the new manifest against the new input. For other datasets, document the release and matching rule and keep the original observations with their source identifiers. Use a CSV-aware tool, such as Python's built-in `csv` module, to filter the full master into a smaller CSV for browsing.
+For a new DSSTox release, rebuild from the Tox21-only snapshot into a fresh directory and check the new manifest. For other datasets, document the release and matching rule and retain observations with their source identifiers. Use a CSV-aware tool, such as Python's `csv` module, to filter the full master for browsing.
