@@ -1,0 +1,41 @@
+{
+  "all_output_hashes_verified": true,
+  "endpoint_catalog_and_target_links_verified": true,
+  "full_rerun_byte_identical": true,
+  "implementation_sha256": {
+    "download_toxcast.py": "f1c58e3af56069265ba502470c1793b888ab97ebb02e414cbb232278324323e2",
+    "import_toxcast.py": "ffde43a5065da1c48c58071e014b36c6c490af3766216b2df27e5a5af0bc3def",
+    "toxcast_sources.json": "34a974c3198c58ba9ed9a5c2ea8f1ac3f1dcfd05bab301bc344123cc06b3a0cd",
+    "verify_toxcast.py": "500c8f66a003ca529a39567050c0188cb24dfa8a7c9a72658740742214896d5d"
+  },
+  "independent_coverage_metrics": {
+    "assay_endpoints_documented": 1647,
+    "assay_endpoints_missing_annotations": 17,
+    "assay_target_links": 1864,
+    "baseline_chemicals": 1248222,
+    "baseline_newly_interpretable": 4519,
+    "baseline_with_tox21": 7829,
+    "expanded_catalog_covered_after": 12348,
+    "expanded_chemicals": 1252222,
+    "fixed_catalog_covered_after": 12348,
+    "mc_active_results": 340352,
+    "mc_inactive_results": 2474187,
+    "mc_negative_direction_results": 700445,
+    "mc_results": 3527285,
+    "mc_unfit_results": 12301,
+    "processed_results": 4060981,
+    "results_with_target_annotation": 2811139,
+    "sc_active_results": 46335,
+    "sc_inactive_results": 473970,
+    "sc_results": 533696,
+    "sc_unfit_results": 13391,
+    "toxcast_interpretable_chemicals": 9755,
+    "toxcast_source_result_chemicals": 9800,
+    "unresolved_processed_results": 10415
+  },
+  "native_processing_ids_reconciled": true,
+  "original_master_values_and_reviewed_keys_preserved": true,
+  "python_version": "3.12.14",
+  "release": "invitrodb_v4.3",
+  "replicates_do_not_inflate_coverage": true
+}

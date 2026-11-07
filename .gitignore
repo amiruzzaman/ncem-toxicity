@@ -1,9 +1,45 @@
-/DSSToxCCDdump.csv
+# Python environments and caches
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+
+# Local operating-system metadata
+.DS_Store
+
+# Downloaded source releases and interrupted downloads
+/sources/
+/DSSToxCCDdump*.csv
+/DSSTox_CCD_dump_*.zip
+/DSSTox_CCD_dump_*/
+*.part
+
+# Generated scientific snapshots (preserve locally; rebuild from pinned inputs)
 /tox21_initial/
 /tox21_dsstox/
-/MasterChemical.csv
 /tox21_dsstox_complete/
-.DS_Store
-/tox21_key_review/
-/tox21_key_review_*/
-__pycache__/
+/tox21_key_review*/
+/tox21_dsstox_toxcast_*/
+
+# Temporary importer staging
+/.dsstox-*/
+/.key-review-*/
+/.toxcast-*/
+/.xlsx-*/
+
+# Obsolete local exports
+/MasterChemical.csv
+/archive/legacy/
+
+# Source locks, dependency pins, tests, and the tracked Tox21 input stay visible.
+# Do not ignore CSV, JSON, ZIP, or text files globally.
+
+# Generated report copies stay local. Keep only the curated full-release certificate.
+/reports/*
+!/reports/toxcast/
+/reports/toxcast/*
+!/reports/toxcast/validation.json

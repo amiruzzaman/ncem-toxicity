@@ -1,0 +1,51 @@
+{
+  "release": "invitrodb_v4.3",
+  "release_date": "2025-08",
+  "doi": "10.23645/epacomptox.6062623.v14",
+  "landing_page": "https://www.epa.gov/comptox-tools/exploring-toxcast-data",
+  "hash_origin": "EPA Clowder public file digest metadata",
+  "files": [
+    {
+      "filename": "INVITRODB_SUMMARY.zip",
+      "url": "https://clowder.edap-cluster.com/api/files/68af6b70e4b02565fc7c3a98",
+      "size": 7502075199,
+      "sha256": "c61d46cf685d5d84e72d0d4f6f46746ab1714d6f924e43480d390925ae827c59"
+    },
+    {
+      "filename": "assay_target_mappings_invitrodb_v4_3_AUG2025.xlsx",
+      "url": "https://clowder.edap-cluster.com/api/files/68af6bd3e4b02565fc7c3aa0",
+      "size": 97652,
+      "sha256": "bf45c47dc383c16aea9c4cf92993f7034a3141a252aa02d9f7aa7216ac84c394"
+    },
+    {
+      "filename": "cytotox_invitrodb_v4_3_AUG2025.xlsx",
+      "url": "https://clowder.edap-cluster.com/api/files/68af6bd3e4b02565fc7c3aa4",
+      "size": 943302,
+      "sha256": "3bc444f658c80e4ac9a1189f083c0120365b504e10d0aa4e0f07feda294c08dd"
+    },
+    {
+      "filename": "assay_annotations_invitrodb_v4_3_AUG2025.xlsx",
+      "url": "https://clowder.edap-cluster.com/api/files/68af6bd3e4b02565fc7c3aa8",
+      "size": 1088201,
+      "sha256": "eecbdac47fe4b4c3db765d412d15526331c269d36c7d79dde938f59ea60461f9"
+    },
+    {
+      "filename": "analytical_qc_invitrodb_v4_3_AUG2025.xlsx",
+      "url": "https://clowder.edap-cluster.com/api/files/68af6bd3e4b02565fc7c3ab8",
+      "size": 2915329,
+      "sha256": "7d562347a459da5e03e51bb3f40b1561b9d07f96a0b695bbdc296e19c2e7cd67"
+    },
+    {
+      "filename": "DB_release_README_SUMMARY.pdf",
+      "url": "https://clowder.edap-cluster.com/api/files/697b7530e4b0731a6170449e",
+      "size": 171736,
+      "sha256": "fffa727f45f01a2e3593d93348aee527a03c5b1957bfe75b7567da7354d108af"
+    },
+    {
+      "filename": "invitrodb_v4_3_release_note_21AUG2025.html",
+      "url": "https://clowder.edap-cluster.com/api/files/68ac7586e4b02565fc7c23c2",
+      "size": 2394678,
+      "sha256": "7dd695e855cd385ff9afe0a6b6f544418554bf87dd1ed774c96fb8b008c05d13"
+    }
+  ]
+}
