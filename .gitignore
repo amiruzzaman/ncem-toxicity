@@ -24,6 +24,7 @@ htmlcov/
 /tox21_dsstox_complete/
 /tox21_key_review*/
 /tox21_dsstox_toxcast_*/
+/SortedMasterChem.csv
 
 # Temporary importer staging
 /.dsstox-*/

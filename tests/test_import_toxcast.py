@@ -1,14 +1,23 @@
 """Scientific-grain, provenance, publication, and download recovery checks."""
+
+# Dev notes
+# From the repository root with requirements/toxcast.txt installed.
+# python3 -m unittest -v tests.test_import_toxcast
+
 import csv
 import hashlib
 import io
 import json
+import sys
 import tempfile
 import unittest
 import zipfile
 from pathlib import Path
 from unittest.mock import patch
 from xml.sax.saxutils import escape
+
+if not __package__:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from download_toxcast import download, fingerprint
 from import_toxcast import Importer, activity_status, cytotox_value_status, init_db, potency_unit, run, workbook_tables
@@ -184,6 +193,15 @@ class EndToEndTests(unittest.TestCase):
             second=run(base,review,source,p/"second",lock)
             self.assertEqual(first,second)
             self.assertTrue(validate(p/"first",review/"master_chemicals_reviewed.csv")["native_processing_ids_reconciled"])
+            self.assertIn("methods/sheet_1.csv", first["output_sha256"])
+            # Verify snapshots written before manifest paths used a common separator.
+            second["output_sha256"] = {
+                name.replace("/", "\\"): digest for name, digest in second["output_sha256"].items()
+            }
+            (p / "second" / "toxcast_import.json").write_text(json.dumps(second), encoding="utf-8")
+            self.assertTrue(validate(p / "second", review / "master_chemicals_reviewed.csv")[
+                "all_output_hashes_verified"
+            ])
             m=first["metrics"]
             self.assertEqual(m["baseline_newly_interpretable"],1)
             self.assertEqual(m["new_entries_with_interpretable_results"],1)

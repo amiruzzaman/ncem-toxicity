@@ -632,7 +632,10 @@ def run(base, review, source_dir, output, lock_file=DEFAULT_LOCK):
                 if t["kind"] == "mc" or t["output"] == "toxcast_sc_observations.csv")
             if expected_results != metrics["processed_results"]:
                 raise ValueError("Source/result accounting failed")
-            output_hashes = {str(p.relative_to(staging)): fingerprint(p) for p in sorted(staging.rglob("*")) if p.is_file()}
+            output_hashes = {
+                p.relative_to(staging).as_posix(): fingerprint(p)
+                for p in sorted(staging.rglob("*")) if p.is_file()
+            }
             manifest = {"release": RELEASE, "policy_version": POLICY_VERSION,
                 "input_sha256": input_hashes, "source_files": lock["files"], "archive_inventory": inventory,
                 "tables": importer.tables, "metrics": metrics, "review_counts": dict(importer.stats),

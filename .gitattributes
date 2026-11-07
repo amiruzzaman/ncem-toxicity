@@ -1,0 +1,2 @@
+# Preserve the exact bytes of the pinned Tox21 input.
+/tox21.csv -text

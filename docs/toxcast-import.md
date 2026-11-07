@@ -4,19 +4,12 @@ This import adds EPA's August 2025 invitrodb v4.3 processed release to the revie
 
 ## Rebuild
 
-Use Python 3.11 or newer with `openpyxl==3.1.5` (`python3 -m pip install -r requirements/toxcast.txt`). Allow roughly 25 GB of free space for the archived inputs, a new snapshot, and temporary staging; a simultaneous verification rebuild needs additional space. Run from the repository root:
+Use Python 3.11 or newer with `openpyxl==3.1.5` (`python3 -m pip install -r requirements/toxcast.txt`). Allow roughly 25 GB of free space for the archived inputs, a new snapshot, and temporary staging; a simultaneous verification rebuild needs additional space. Run these commands from the repository root. On Windows, use `py -3` if you use the Python launcher.
 
 ```bash
 python3 download_toxcast.py --source-dir sources/toxcast/invitrodb_v4_3
-python3 import_toxcast.py \
-  --base-snapshot tox21_dsstox_complete \
-  --key-review tox21_key_review \
-  --source-dir sources/toxcast/invitrodb_v4_3 \
-  --output tox21_dsstox_toxcast_v4_3
-python3 verify_toxcast.py \
-  --snapshot tox21_dsstox_toxcast_v4_3 \
-  --reviewed-master tox21_key_review/master_chemicals_reviewed.csv \
-  --report reports/toxcast/validation-recheck.json
+python3 import_toxcast.py --base-snapshot tox21_dsstox_complete --key-review tox21_key_review --source-dir sources/toxcast/invitrodb_v4_3 --output tox21_dsstox_toxcast_v4_3
+python3 verify_toxcast.py --snapshot tox21_dsstox_toxcast_v4_3 --reviewed-master tox21_key_review/master_chemicals_reviewed.csv --report reports/toxcast/validation-recheck.json
 python3 -m unittest -v tests.test_import_toxcast
 ```
 
@@ -26,7 +19,7 @@ The downloader uses `toxcast_sources.json`, containing EPA's public file URLs, s
 
 The importer rejects existing output directories. Use a fresh name for every rebuild. It verifies baseline and key-review manifests, source hashes, schemas, processing IDs, and assay references. Inputs are checked again before the staged directory is atomically published. Temporary SQLite is a build index; the durable data remains CSV plus JSON manifests.
 
-For a full determinism check, rerun the import with `--output tox21_dsstox_toxcast_v4_3_verify`, then run the verifier above with `--compare tox21_dsstox_toxcast_v4_3_verify`. It compares complete manifests and hashes every corresponding output file. The optional validation report records these checks and implementation hashes outside the immutable snapshots. Generated snapshots and downloads are Git-ignored.
+For a full determinism check using the same local input paths, rerun the import with `--output tox21_dsstox_toxcast_v4_3_verify`, then run the verifier above with `--compare tox21_dsstox_toxcast_v4_3_verify`. It compares complete manifests and hashes every corresponding output file. The optional validation report records these checks and implementation hashes outside the immutable snapshots. Generated snapshots and downloads are Git-ignored.
 
 ## Outputs and joins
 
@@ -79,4 +72,4 @@ Commit code, tests, dependency pins, the source lock, this guide, the changelog,
 
 The current master is `tox21_dsstox_toxcast_v4_3/master_chemicals.csv`. Full reports are generated alongside it. Optional copies under `reports/toxcast/` are local sharing artifacts; only `validation.json` is allowlisted in Git. Recheck reports use a different filename to preserve the original certificate. Do not edit published snapshot contents or move their inputs: manifests record hashes and historical paths.
 
-Run the DSSTox suite with `python3 -m unittest -v tests.test_review_dsstox_keys` in an RDKit-equipped environment. With both RDKit and openpyxl installed, `python3 -m unittest discover -s tests -v` runs all 24 tests.
+Run the DSSTox suite with `python3 -m unittest -v tests.test_review_dsstox_keys` in an RDKit-equipped environment. With both RDKit and openpyxl installed, `python3 -m unittest discover -s tests -v` runs all suites.

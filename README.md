@@ -96,21 +96,23 @@ python3 -c "from rdkit import rdBase; print(rdBase.rdkitVersion)"
 python3 -m pip install -r requirements/toxcast.txt
 ```
 
-Run from the repository root with `tox21.csv` and the extracted `DSSToxCCDdump.csv` beside the scripts. **Every build requires a fresh output directory.** These commands reflect the actual current layout; the Tox21 builder is named `BuiltMasterTox21.py`.
+Run from the repository root with `tox21.csv` and the extracted `DSSToxCCDdump.csv` beside the scripts. **Every build requires a fresh output directory.** Use `py -3` in place of `python3` on Windows if you use the Python launcher.
 
 ```bash
 python3 BuiltMasterTox21.py tox21.csv tox21_initial
 python3 import_dsstox.py tox21_initial DSSToxCCDdump.csv tox21_dsstox_complete
 python3 review_dsstox_keys.py tox21_dsstox_complete tox21_key_review
 python3 download_toxcast.py --source-dir sources/toxcast/invitrodb_v4_3
-python3 import_toxcast.py \
-  --base-snapshot tox21_dsstox_complete \
-  --key-review tox21_key_review \
-  --source-dir sources/toxcast/invitrodb_v4_3 \
-  --output tox21_dsstox_toxcast_v4_3
+python3 import_toxcast.py --base-snapshot tox21_dsstox_complete --key-review tox21_key_review --source-dir sources/toxcast/invitrodb_v4_3 --output tox21_dsstox_toxcast_v4_3
 ```
 
 Allow roughly 25 GB of free space for downloaded inputs, a new snapshot, and staging; a parallel full rebuild needs more. SQLite is temporary build workspace. Durable outputs are CSVs and JSON manifests. [Detailed rebuild and verification guide](docs/toxcast-import.md)
+
+To export from a published three-source snapshot, run the following command from the repository root. On another machine, copy the generated snapshot or rebuild it first. Use an unused output filename on a filesystem that supports hard links.
+
+```sh
+python3 build_sorted_masterchem.py --snapshot tox21_dsstox_toxcast_v4_3 --output SortedMasterChem.csv
+```
 
 ## Review queues and validation
 

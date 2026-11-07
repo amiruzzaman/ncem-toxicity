@@ -1,4 +1,9 @@
 """Scientific identity and provenance checks for the key-review workflow."""
+
+# Dev notes
+# From the repository root with RDKit installed.
+# python3 -m unittest -v tests.test_review_dsstox_keys
+
 import csv
 import json
 import sys

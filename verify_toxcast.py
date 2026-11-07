@@ -18,7 +18,7 @@ def rows(path):
 def validate(snapshot, reviewed_master):
     manifest = json.loads((snapshot / "toxcast_import.json").read_text())
     for name, digest in manifest["output_sha256"].items():
-        if fingerprint(snapshot / name) != digest:
+        if fingerprint(snapshot / name.replace("\\", "/")) != digest:
             raise ValueError(f"Published output hash mismatch: {name}")
     ids, original_ids, tox21 = set(), set(), set()
     summaries = {}
@@ -135,7 +135,8 @@ if __name__=="__main__":
         second=json.loads((args.compare/"toxcast_import.json").read_text())
         if first!=second:raise ValueError("Rerun manifests differ")
         for name,digest in first["output_sha256"].items():
-            if fingerprint(args.compare/name)!=digest:raise ValueError(f"Rerun differs: {name}")
+            if fingerprint(args.compare / name.replace("\\", "/")) != digest:
+                raise ValueError(f"Rerun differs: {name}")
         result["full_rerun_byte_identical"]=True
     result["release"]=json.loads((args.snapshot/"toxcast_import.json").read_text())["release"]
     result["python_version"]=platform.python_version()
