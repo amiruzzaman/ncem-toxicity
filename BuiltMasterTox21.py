@@ -3,7 +3,7 @@ import argparse
 import csv
 import hashlib
 import io
-from collections import defaultdict
+from collections import Counter, defaultdict
 from decimal import Decimal
 from pathlib import Path
 from uuid import NAMESPACE_URL, uuid5
@@ -31,7 +31,11 @@ def build(source, output):
     reader = csv.DictReader(io.StringIO(raw.decode("utf-8-sig"), newline=""), strict=True)
     required = {*ENDPOINTS, "mol_id", "smiles"}
 
-    if not required.issubset(reader.fieldnames or []):
+    fields = reader.fieldnames or []
+    duplicates = sorted(name for name, count in Counter(fields).items() if count > 1)
+    if duplicates:
+        raise ValueError(f"Duplicate Tox21 columns: {', '.join(duplicates)}")
+    if not required.issubset(fields):
         raise ValueError("Input is missing required Tox21 columns")
 
     chemicals = {}

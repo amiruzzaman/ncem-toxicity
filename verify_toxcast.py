@@ -73,7 +73,7 @@ def validate(snapshot, reviewed_master):
                 try:
                     v=Decimal(raw)
                     if not v.is_finite():expected="invalid"
-                    elif screen=="mc" and row.get("modl","").lower() in {"none","nofit"}:expected="unfit"
+                    elif screen=="mc" and row.get("modl","").strip().lower() in {"none","nofit"}:expected="unfit"
                     elif v<0:expected="negative_direction" if screen=="mc" else "unfit"
                     elif v>1 or (screen=="sc" and v not in (0,1)):expected="invalid"
                     else:expected="active" if v >= (Decimal("0.9") if screen=="mc" else 1) else "inactive"

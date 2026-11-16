@@ -66,6 +66,12 @@ class InterpretationTests(unittest.TestCase):
         self.assertEqual(activity_status({"hitc": "0.9"}, "sc"), "invalid")
         self.assertEqual(activity_status({"hitc": "0"}, "sc"), "inactive")
 
+    def test_unfit_model_names_allow_whitespace_and_mixed_case(self):
+        for model in (" NONE ", "\tNoNe\n", " NOFIT ", "\tNoFiT\n"):
+            for hitc in ("0", "1"):
+                with self.subTest(model=model, hitc=hitc):
+                    self.assertEqual(activity_status({"hitc": hitc, "modl": model}, "mc"), "unfit")
+
     def test_units(self):
         self.assertEqual(potency_unit({"conc_unit": "uM"}, "mc"), "uM")
         self.assertEqual(potency_unit({"conc_unit": "NA"}, "mc"), "")
@@ -172,7 +178,7 @@ class EndToEndTests(unittest.TestCase):
         records=[(1,11,1,"sample1","DTXSID1000002","B",0.90,"hill","uM",2,"caution"),
                  (2,12,1,"sample2","DTXSID1000002","B",0,"cnst","uM","NA",""),
                  (3,13,1,"sample3","DTXSID1000003","C",1,"hill","uM",1,""),
-                 (4,14,1,"","NA","",0,"none","NA","NA","")]
+                 (4,14,1,"","NA","",0," NONE ","NA","NA","")]
         buf=io.StringIO();w=csv.writer(buf);w.writerow(header);w.writerows(records)
         sc=xlsx([("sc1",[("aeid","spid","dsstox_substance_id","s1id","resp"),(1,"sample1","DTXSID1000002",1,4),(1,"sample1","DTXSID1000002",2,5)]),
                  ("sc2",[("aeid","spid","dsstox_substance_id","s2id","hitc"),(1,"sample1","DTXSID1000002",1,1),(1,"sample1","DTXSID1000002",1,1)])])
@@ -206,10 +212,15 @@ class EndToEndTests(unittest.TestCase):
             self.assertEqual(m["baseline_newly_interpretable"],1)
             self.assertEqual(m["new_entries_with_interpretable_results"],1)
             self.assertEqual(m["mc_results"],4)
+            self.assertEqual(m["mc_unfit_results"],1)
             self.assertEqual(m["sc_results"],1)
             self.assertEqual(m["sample_disagreement_groups"],1)
             self.assertEqual(m["assay_target_links"],2)
             self.assertEqual(m["results_with_target_annotation"],5)
+            with (p/"first/toxcast_mc_observations.csv").open(newline="", encoding="utf-8") as f:
+                unfit = next(row for row in csv.DictReader(f) if row["result_id"] == "4")
+            self.assertEqual(unfit["modl"], " NONE ")
+            self.assertEqual(unfit["activity_status"], "unfit")
             with (p/"first/master_chemicals.csv").open() as f:rows=list(csv.DictReader(f))
             b=next(r for r in rows if r["chemical_id"]=="baseline-b")
             self.assertEqual((b["standard_inchikey"],b["toxcast_mc_result_count"],b["toxcast_sc_result_count"],b["toxcast_endpoint_count"]),("KEY-B","2","1","1"))
